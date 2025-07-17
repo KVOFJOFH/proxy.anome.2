@@ -12,8 +12,8 @@ export default function server() {
   createServer({
     originBlacklist: ["*"],
     originWhitelist: process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(",").concat(null)
-      : ["*", null],
+      ? process.env.ALLOWED_ORIGINS.split(",")
+      : [],
     requireHeader: [],
     removeHeaders: [
       "cookie",
