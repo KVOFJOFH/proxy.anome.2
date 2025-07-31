@@ -20,17 +20,26 @@ export default async function proxyM3U8(url, headers, res) {
   }
 
   const req = await axios(url, {
-    headers: headers,
-  }).catch((err) => {
-    res.writeHead(500);
-    res.end(err.message);
-    return null;
-  });
-  const m3u8 = req.data
-    .split("\n")
-    //now it supports also proxying multi-audio streams
-    // .filter((line) => !line.startsWith("#EXT-X-MEDIA:TYPE=AUDIO"))
-    .join("\n");
+  headers: headers,
+}).catch((err) => {
+  res.writeHead(500);
+  res.end(err.message);
+  return null;
+});
+
+// ✅ Fix: Check if the request failed
+if (!req || !req.data) {
+  res.writeHead(502);
+  res.end("Failed to fetch the M3U8 file");
+  return;
+}
+
+const m3u8 = req.data
+  .split("\n")
+  //now it supports also proxying multi-audio streams
+  // .filter((line) => !line.startsWith("#EXT-X-MEDIA:TYPE=AUDIO"))
+  .join("\n");
+
   if (m3u8.includes("RESOLUTION=")) {
     const lines = m3u8.split("\n");
     const newLines = [];
