@@ -19,18 +19,25 @@ export default async function proxyM3U8(url, headers, res) {
     return;
   }
 
-  const req = await axios(url, {
-  headers: headers,
-}).catch((err) => {
-  res.writeHead(500);
-  res.end(err.message);
-  return null;
-});
+  let req;
 
-// ✅ Fix: Check if the request failed
+try {
+  req = await axios(url, {
+    headers: headers,
+  });
+} catch (err) {
+  if (!res.headersSent) {
+    res.writeHead(500, { "Content-Type": "text/plain" });
+    res.end("Request error: " + err.message);
+  }
+  return;
+}
+
 if (!req || !req.data) {
-  res.writeHead(502);
-  res.end("Failed to fetch the M3U8 file");
+  if (!res.headersSent) {
+    res.writeHead(502, { "Content-Type": "text/plain" });
+    res.end("Failed to fetch the M3U8 file");
+  }
   return;
 }
 
