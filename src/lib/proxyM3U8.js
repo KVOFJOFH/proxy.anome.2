@@ -22,9 +22,18 @@ export default async function proxyM3U8(url, headers, res) {
   let req;
 
 try {
-  req = await axios(url, {
-    headers: headers,
-  });
+  // Auto-determine referer from the URL
+const domainUrl = new URL(url);
+headers = {
+  ...(headers || {}),
+  Referer: `${domainUrl.protocol}//${domainUrl.hostname}/`,
+  Origin: `${domainUrl.protocol}//${domainUrl.hostname}`,
+  'User-Agent': headers?.['User-Agent'] || 'Mozilla/5.0',
+};
+
+req = await axios(url, {
+  headers,
+});
 } catch (err) {
   if (!res.headersSent) {
     res.writeHead(500, { "Content-Type": "text/plain" });
