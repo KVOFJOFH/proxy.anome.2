@@ -83,17 +83,17 @@ const m3u8 = req.data
           newLines.push(line);
         }
       } else {
-        const uri = new URL(line, url);
-        newLines.push(
-          `${
-            web_server_url +
-            "/m3u8-proxy?url=" +
-            encodeURIComponent(uri.href) +
-            "&headers=" +
-            encodeURIComponent(JSON.stringify(headers))
-          }`
-        );
-      }
+  let resolved;
+  try {
+    resolved = new URL(line, url).href;
+  } catch (e) {
+    resolved = url.replace(/[^\/]+$/, '') + line;
+  }
+
+  newLines.push(
+    `${web_server_url}/m3u8-proxy?url=${encodeURIComponent(resolved)}&headers=${encodeURIComponent(JSON.stringify(headers))}`
+  );
+}
     }
 
     [
@@ -140,16 +140,16 @@ const m3u8 = req.data
           newLines.push(line);
         }
       } else {
-        const uri = new URL(line, url);
+        let resolved;
+try {
+  resolved = new URL(line, url).href;
+} catch (e) {
+  resolved = url.replace(/[^\/]+$/, '') + line;
+}
 
-        newLines.push(
-          `${web_server_url}${
-            "/ts-proxy?url=" +
-            encodeURIComponent(uri.href) +
-            "&headers=" +
-            encodeURIComponent(JSON.stringify(headers))
-          }`
-        );
+newLines.push(
+  `${web_server_url}/ts-proxy?url=${encodeURIComponent(resolved)}&headers=${encodeURIComponent(JSON.stringify(headers))}`
+);
       }
     }
 
