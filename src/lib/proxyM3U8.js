@@ -8,6 +8,17 @@ const port = process.env.PORT || 8080;
 const web_server_url = process.env.PUBLIC_URL || `http://${host}:${port}`;
 
 export default async function proxyM3U8(url, headers, res) {
+  try {
+    // Convert headers string (from query) to object
+    if (typeof headers === "string") {
+      headers = JSON.parse(headers);
+    }
+  } catch (e) {
+    res.writeHead(400);
+    res.end("Invalid headers format");
+    return;
+  }
+
   const req = await axios(url, {
     headers: headers,
   }).catch((err) => {
@@ -15,9 +26,6 @@ export default async function proxyM3U8(url, headers, res) {
     res.end(err.message);
     return null;
   });
-  if (!req) {
-    return;
-  }
   const m3u8 = req.data
     .split("\n")
     //now it supports also proxying multi-audio streams
